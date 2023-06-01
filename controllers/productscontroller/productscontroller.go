@@ -103,4 +103,20 @@ func Update(c *gin.Context) {
 
 func Delete(c *gin.Context) {
 
+	var book models.Book
+
+	id := c.Param("id")
+
+	if models.DB.Delete(&book, id).RowsAffected == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Cannot delete book",
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Book deleted successfully",
+	})
+
 }
