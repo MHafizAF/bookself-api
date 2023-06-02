@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/MHafizAF/bookself-api/models"
+	"github.com/MHafizAF/bookself-api/utils/token"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +14,7 @@ type LoginInput struct {
 }
 
 func SignIn(c *gin.Context) {
+
 	var input LoginInput
 
 	if errors := c.ShouldBindJSON(&input); errors != nil {
@@ -40,6 +42,33 @@ func SignIn(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "sign in successfully",
 		"token":   token,
+	})
+
+}
+
+func CurrentUser(c *gin.Context) {
+
+	user_id, err := token.ExtractTokenID(c)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	user, err := models.GetUserById(user_id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "current user",
+		"data":    user,
 	})
 
 }

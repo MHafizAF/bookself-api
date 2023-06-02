@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/MHafizAF/bookself-api/utils/token"
@@ -14,6 +15,23 @@ type User struct {
 	Username string `gorm:"type:varchar(255); not null; unique" json:"username"`
 	Password string `gorm:"type:varchar(255); not null" json:"password"`
 	Books    []Book
+}
+
+func GetUserById(uid int64) (User, error) {
+
+	var u User
+
+	if err := DB.First(&u, uid).Error; err != nil {
+		return u, errors.New("User not found!")
+	}
+
+	u.PrepareGive()
+
+	return u, nil
+}
+
+func (u *User) PrepareGive() {
+	u.Password = ""
 }
 
 func VerifyPasword(password, hashedPassword string) error {
