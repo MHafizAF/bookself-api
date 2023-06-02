@@ -1,4 +1,4 @@
-package productscontroller
+package bookscontroller
 
 import (
 	"net/http"
