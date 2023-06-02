@@ -20,6 +20,7 @@ func main() {
 
 	// authentication routes
 	routes.POST("/api/register", authentication.Register)
+	routes.POST("/api/sign-in", authentication.SignIn)
 
 	routes.Run()
 }

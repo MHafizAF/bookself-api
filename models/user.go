@@ -3,6 +3,7 @@ package models
 import (
 	"strings"
 
+	"github.com/MHafizAF/bookself-api/utils/token"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -13,6 +14,37 @@ type User struct {
 	Username string `gorm:"type:varchar(255); not null; unique" json:"username"`
 	Password string `gorm:"type:varchar(255); not null" json:"password"`
 	Books    []Book
+}
+
+func VerifyPasword(password, hashedPassword string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+}
+
+func SignInCheck(username string, password string) (string, error) {
+	var err error
+
+	user := User{}
+
+	err = DB.Model(User{}).Where("username = ?", username).Take(&user).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	err = VerifyPasword(password, user.Password)
+
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		return "", err
+	}
+
+	token, err := token.GenerateToken(user.Id)
+
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+
 }
 
 func (u *User) SaveUser() (*User, error) {
